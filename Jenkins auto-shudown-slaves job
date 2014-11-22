@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Have to redirect stderr to stdout here because slave.py uses stderr for output.
+~/bin/slave.py list 2>&1 >/dev/null | grep beaker-slave- | while read slave; do
+  echo
+  echo "Checking status of $slave..."
+
+  # First, check if we can SSH into the host. If we can, then check the process and maybe shut down.
+  # This makes sure that we don't consider an SSH failure to be reason to shut down the node.
+  if ssh $slave echo < /dev/null; then
+    if ssh $slave pgrep -f slave.jar < /dev/null; then
+      echo "slave.jar is still running on $slave. Leaving things alone..."
+    else
+      echo "slave.jar is NOT running on $slave. Shutting down instance..."
+      ~/bin/slave.py down --instance_name=$slave
+    fi
+  else
+    echo 'SSH FAILED TO $slave -- sup with that?'
+    echo 'Maybe the instance is TERMINATED instead of deleted? It should be deleted.'
+  fi
+done

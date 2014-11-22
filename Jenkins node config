@@ -1,0 +1,4 @@
+# Each jenkins node configured to "Launch slave via execution of command on the Master" and then to "Launch command":
+/var/lib/jenkins/bin/start-slave-and-connect.sh slave-1
+/var/lib/jenkins/bin/start-slave-and-connect.sh slave-2
+etc.
