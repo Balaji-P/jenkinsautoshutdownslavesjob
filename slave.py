@@ -89,7 +89,13 @@ def main(argv):
 
   def up():
     # Skip startup if slave is already up.
-    if instance_name in [instance['name'] for instance in list_instances()]:
+    instances = list_instances()
+    instance = [instance for instance in instances if instance['name'] == instance_name]
+    instance = instance[0] if instance else None
+    if instance and instance['status'] == 'TERMINATED':
+      print >> sys.stderr, 'Slave "%s" already exists but is TERMINATED. Deleting instance...' % instance_name
+      down()
+    if instance and instance['status'] == 'RUNNING':
       sys.exit('Slave "%s" already exists.' % instance_name)
 
     print_instances()
